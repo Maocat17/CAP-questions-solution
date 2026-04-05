@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歷屆試題查詢系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: #f1f5f9;
+            height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container-box {
+            width: 95%;
+            max-width: 1000px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-grid {
+            display: grid;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* 電腦版：並列一行，寬度自動等分且填滿 */
+        @media (min-width: 768px) {
+            .button-grid {
+                grid-template-columns: repeat(auto-fit, minmax(10px, 1fr)) !important;
+            }
+        }
+
+        .btn-custom {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: white;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+            min-height: 68px; /* 允許文字換行時撐開 */
+        }
+
+        .btn-custom:active { transform: scale(0.96); opacity: 0.9; }
+
+        .btn-icon-wrapper {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .btn-text-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.25;
+            word-break: break-all; /* 若文字太長則自動切到下一行 */
+        }
+
+        .btn-label-en { font-size: 10px; font-weight: 700; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-label-zh { font-size: 15px; font-weight: 900; }
+
+        .hidden-btn { display: none !important; }
+
+        .bg-knsh { background: #2563eb; }
+        .bg-hanlin { background: #16a34a; }
+        .bg-math { background: #ea580c; }
+        .bg-goog { background: #ef4444; }
+        .bg-yt { background: #1f2937; }
+
+        /* 選單風格 */
+        select {
+            appearance: none;
+            background-color: #f8fafc;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-box">
+        <h1 class="text-xl font-black text-slate-800 text-center mb-6">歷屆試題查詢系統</h1>
+
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            <div class="space-y-1">
+                <span class="text-[11px] font-bold text-slate-400 ml-1">年度 EXAM YEAR</span>
+                <select id="year" onchange="updateUI()" class="w-full p-3 rounded-xl text-sm font-bold border-2 border-slate-50 outline-none focus:border-blue-400 transition-all">
+                    <option value="1141" data-round="1">114會考</option>
+                    <option value="1131" data-round="2">113會考</option>
+                    <option value="1121" data-round="3">112會考</option>
+                    <option value="1121-C" data-round="4">112大陸</option>
+                    <option value="1111" data-round="5">111會考</option>
+                    <option value="1112" data-round="6">111補考</option>
+                    <option value="1101" data-round="7">110會考</option>
+                    <option value="1102" data-round="8">110補考</option>
+                    <option value="1091" data-round="9">109會考</option>
+                    <option value="1092" data-round="10">109補考</option>
+                    <option value="1081" data-round="11">108會考</option>
+                    <option value="1071" data-round="12">107會考</option>
+                    <option value="1061" data-round="13">106會考</option>
+                    <option value="1051" data-round="14">105會考</option>
+                    <option value="1041" data-round="15">104會考</option>
+                    <option value="1031" data-round="16">103會考</option>
+                    <option value="1021">102基測</option>
+                    <option value="1011">101基測</option>
+                    <option value="1001">100基測</option>
+                </select>
+            </div>
+            <div class="space-y-1">
+                <span class="text-[11px] font-bold text-slate-400 ml-1">科目 SUBJECT</span>
+                <select id="subject" onchange="updateUI()" class="w-full p-3 rounded-xl text-sm font-bold border-2 border-slate-50 outline-none focus:border-blue-400 transition-all">
+                    <option value="CE">國文</option>
+                    <option value="EN">英文</option>
+                    <option value="MA">數學</option>
+                    <option value="NA">自然</option>
+                    <option value="SY">社會</option>
+                </select>
+            </div>
+            <div class="space-y-1">
+                <span class="text-[11px] font-bold text-slate-400 ml-1">題號 NO.</span>
+                <select id="questionNum" onchange="updateUI()" class="w-full p-3 rounded-xl text-sm font-bold border-2 border-slate-50 outline-none focus:border-blue-400 transition-all">
+                </select>
+            </div>
+        </div>
+
+        <div class="button-grid" id="actionGrid">
+            <button onclick="openKN()" class="btn-custom bg-knsh">
+                <div class="btn-icon-wrapper"><i class="fa-solid fa-play text-sm"></i></div>
+                <div class="btn-text-content">
+                    <span class="btn-label-zh">康軒真人講解</span>
+                </div>
+            </button>
+
+            <button id="hnBtn" onclick="openHN()" class="btn-custom bg-hanlin">
+                <div class="btn-icon-wrapper"><i class="fa-solid fa-book-open text-sm"></i></div>
+                <div class="btn-text-content">
+                    <span class="btn-label-zh">翰林真人講解</span>
+                </div>
+            </button>
+
+            <button id="mathBtn" onclick="openMath()" class="btn-custom bg-math">
+                <div class="btn-icon-wrapper"><i class="fa-solid fa-calculator text-sm"></i></div>
+                <div class="btn-text-content">
+                    <span class="btn-label-zh">數學單題解析</span>
+                </div>
+            </button>
+
+            <button onclick="openS('google')" class="btn-custom bg-goog">
+                <div class="btn-icon-wrapper"><i class="fa-brands fa-google text-sm"></i></div>
+                <div class="btn-text-content">
+                    <span class="btn-label-zh">Google 搜尋</span>
+                </div>
+            </button>
+
+            <button onclick="openS('youtube')" class="btn-custom bg-yt">
+                <div class="btn-icon-wrapper"><i class="fa-brands fa-youtube text-sm"></i></div>
+                <div class="btn-text-content">
+                    <span class="btn-label-zh">YouTube 搜尋</span>
+                </div>
+            </button>
+        </div>
+
+        <p class="text-[10px] text-slate-400 text-center mt-8 font-medium">
+            <i class="fa-solid fa-circle-info mr-1"></i> 版本2.0 @羊毛製作
+        </p>
+    </div>
+
+    <script>
+        const qSelect = document.getElementById('questionNum');
+        for (let i = 1; i <= 60; i++) {
+            qSelect.options.add(new Option(i, i.toString().padStart(2, '0')));
+        }
+
+        function parseYear() {
+            const full = document.getElementById('year').value;
+            const code = full.split('-')[0];
+            return {
+                year: code.substring(0, 3),
+                isMakeup: code.substring(3, 4), // "1" 正考, "2" 補考
+                isChina: full.includes('-C')
+            };
+        }
+
+        function updateUI() {
+            const { year, isMakeup, isChina } = parseYear();
+            const sub = document.getElementById('subject').value;
+            const num = parseInt(document.getElementById('questionNum').value);
+            const yearNum = parseInt(year);
+
+            const hnBtn = document.getElementById('hnBtn');
+            const mathBtn = document.getElementById('mathBtn');
+            const grid = document.getElementById('actionGrid');
+
+            // 1. 隱藏邏輯判定
+            hnBtn.classList.toggle("hidden-btn", yearNum < 103);
+            
+            // 數學按鈕：非數學科、<=104、補考、大陸、題號>27 時隱藏
+            const showMath = (sub === "MA") && (yearNum > 104) && (isMakeup !== "2") && (!isChina) && (num <= 27);
+            mathBtn.classList.toggle("hidden-btn", !showMath);
+
+            // 2. 佈局計算 (確保長度平均分配)
+            const visibleBtns = Array.from(grid.children).filter(b => !b.classList.contains('hidden-btn'));
+            
+            if (window.innerWidth < 768) {
+                // 手機版：
+                if (visibleBtns.length === 5) {
+                    grid.style.gridTemplateColumns = "repeat(6, 1fr)";
+                    visibleBtns[0].style.gridColumn = "span 3";
+                    visibleBtns[1].style.gridColumn = "span 3";
+                    visibleBtns[2].style.gridColumn = "span 2";
+                    visibleBtns[3].style.gridColumn = "span 2";
+                    visibleBtns[4].style.gridColumn = "span 2";
+                } else if (visibleBtns.length === 4) {
+                    grid.style.gridTemplateColumns = "repeat(2, 1fr)";
+                    visibleBtns.forEach(b => b.style.gridColumn = "span 1");
+                } else {
+                    grid.style.gridTemplateColumns = "repeat(1, 1fr)";
+                    visibleBtns.forEach(b => b.style.gridColumn = "span 1");
+                }
+            } else {
+                // 電腦版：直接平分
+                grid.style.gridTemplateColumns = `repeat(${visibleBtns.length}, 1fr)`;
+                Array.from(grid.children).forEach(b => b.style.gridColumn = "");
+            }
+        }
+
+        function openKN() {
+            const { year, isMakeup, isChina } = parseYear();
+            const subCode = document.getElementById("subject").value;
+            const subText = document.getElementById("subject").options[document.getElementById("subject").selectedIndex].text;
+            const q = document.getElementById("questionNum").value;
+            const yearNum = parseInt(year);
+
+            if (yearNum < 112 || (yearNum == 112 && !isChina)) {
+                window.open(`https://knsh.smartstudy.tw/cap/courses/JF-${subCode}-${year}${isMakeup}-${q}`);
+            } else {
+                const S = isChina ? "C" : "T";
+                const base = `CAP-${S}-ALL-${year}${isMakeup}`;
+                let mid, end;
+                if (subText === "國文") {
+                    mid = (year === "113") ? `CAP-${S}-CH-${year}${isMakeup}` : `CAP-${S}-CE-${year}${isMakeup}`;
+                    end = `CAP-${S}-CE-${year}${isMakeup}-${q}`;
+                } else {
+                    mid = `CAP-${S}-${subCode}-${year}${isMakeup}`;
+                    end = `CAP-${S}-${subCode}-${year}${isMakeup}-${q}`;
+                }
+                window.open(`https://streaming.knsh.com.tw/reference/index.html?video=${base}/${mid}/${end}`);
+            }
+        }
+
+        function openHN() {
+            const sub = document.getElementById('subject').value;
+            const num = parseInt(document.getElementById('questionNum').value);
+            const ySelect = document.getElementById('year');
+            const round = ySelect.options[ySelect.selectedIndex].getAttribute('data-round');
+            const code = (parseInt(round) * 1000 + (num - 1) * 10).toString().padStart(6, '0');
+            const map = { 'CE':'21', 'EN':'22', 'MA':'23', 'NA':'24', 'SY':'25' };
+            const subMap = { 'CE':'JPC', 'EN':'JEN', 'MA':'JMA', 'NA':'JNA', 'SY':'JSO' };
+            window.open(`https://www.ehanlin.com.tw/event/online-refbook/refbook-content.html?id=4130_${map[sub]}#subId=114_WIN_${subMap[sub]}_PREEXAM_TB_${code}`);
+        }
+
+        function openMath() {
+            const { year } = parseYear();
+            const q = document.getElementById('questionNum').value;
+            window.open(`https://h5.hle.com.tw/h5mp4/02j/03Hm/%E6%9C%83%E8%80%83%E8%A7%A3%E9%A1%8C%E5%BD%B1%E7%89%87/${year}/${q}.mp4`);
+        }
+
+        function openS(type) {
+            const yT = document.getElementById('year').options[document.getElementById('year').selectedIndex].text;
+            const sT = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
+            const q = parseInt(document.getElementById('questionNum').value);
+            const key = encodeURIComponent(`${yT} ${sT} 第${q}題 解題`);
+            const url = (type === 'google') ? `https://www.google.com/search?q=${key}` : `https://www.youtube.com/results?search_query=${key}`;
+            window.open(url);
+        }
+
+        window.addEventListener('resize', updateUI);
+        updateUI();
+    </script>
+</body>
+</html>
